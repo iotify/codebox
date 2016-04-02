@@ -32,6 +32,7 @@ program
 .option('-t, --templates [list]', 'Configuration templates, separated by commas', "")
 .option('-p, --port [port]', 'HTTP port', 3000)
 .option('-o, --open', 'Open the IDE in your favorite browser')
+.option('-s, --settings [json]', 'Override Settings in JSON')
 .option('-e, --email [email address]', 'Email address to use as a default authentication')
 .option('-u, --users [list users]', 'List of coma seperated users and password (formatted as "username:password")', function (val) {
     return _.object(_.map((val || "").split(','), function(x) {
@@ -48,7 +49,19 @@ program
             users: opts.users
         }
     };
-
+    
+    if (opts.settings)
+    {
+        try {
+            var u_options = JSON.parse(opts.settings);
+            if (u_options)
+            {
+                _.extend(options, u_options);
+            }
+        } catch (e) {
+            return console.error("Problem parsing settings. "+ e.message);
+        }
+    }
     codebox.start(options)
     .then(function() {
         if (program.email) return program.email;
